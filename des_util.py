@@ -1,4 +1,5 @@
-from table import initial_perm, expansion_table, sbox, pbox, final_perm, key_schedule
+from tabel import initial_perm, expansion_table, sbox, pbox, final_perm, key_schedule
+
 
 def permute(data, table):
     return ''.join(data[i - 1] for i in table)
