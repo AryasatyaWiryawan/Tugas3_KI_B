@@ -1,4 +1,3 @@
-# rsa_util.py
 from math import gcd
 
 def generate_rsa_keys(p, q):
@@ -11,7 +10,13 @@ def generate_rsa_keys(p, q):
     return (e, n), (d, n)
 
 def rsa_encrypt(message, key, n):
-    return [pow(ord(char), key, n) for char in message]
+    # Encrypt each integer in the message
+    if isinstance(message, str):
+        return [pow(ord(char), key, n) for char in message]
+    return pow(message, key, n)  # Handle integers
 
 def rsa_decrypt(encrypted_message, key, n):
-    return ''.join([chr(pow(char, key, n)) for char in encrypted_message])
+    # Decrypt each integer to characters
+    if isinstance(encrypted_message, list):
+        return ''.join([chr(pow(char, key, n)) for char in encrypted_message])
+    return pow(encrypted_message, key, n)  # Handle integers

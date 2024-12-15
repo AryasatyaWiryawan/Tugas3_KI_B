@@ -1,39 +1,38 @@
-# user1.py
 import socket
 import json
 from rsa_util import rsa_encrypt, rsa_decrypt
 from des_util import des_encrypt
 
-# Private key of user1
+# Private key of User1
 private_key_user1 = (7, 143)
 
 def user1():
-    # Get public key of user2 from PKA
+    # Step 1: Get User2's public key from PKA
     pka_socket = socket.socket()
     pka_socket.connect(('localhost', 5000))
-    pka_socket.send(b'user1')
+    pka_socket.send(b'user1')  # Request User2's public key
     response = json.loads(pka_socket.recv(1024).decode())
     pka_socket.close()
 
-    # Decrypt the received keys using user1's private key
-    e_user2 = int(rsa_decrypt(response['e'], *private_key_user1))
-    n_user2 = int(rsa_decrypt(response['n'], *private_key_user1))
+    # Step 2: Decrypt User2's public key using User1's private key
+    e_user2 = rsa_decrypt(response['e'], *private_key_user1)
+    n_user2 = rsa_decrypt(response['n'], *private_key_user1)
     public_key_user2 = (e_user2, n_user2)
+    print("Public key (e, n) for User2:", public_key_user2)
 
-    # DES key (64-bit hex). Must be 16 hex characters.
-    des_key = "AABB09182736CCDD"
+    # Step 3: Generate and encrypt DES key
+    des_key = "AABB09182736CCDD"  # 64-bit DES key (16 hex characters)
+    encrypted_key = rsa_encrypt(int(des_key, 16), *public_key_user2)
 
-    # Encrypt DES key with user2's public key using RSA
-    encrypted_key = rsa_encrypt(des_key, *public_key_user2)
-
-    # Send key to user2
+    # Step 4: Send encrypted DES key and encrypted message to User2
     client_socket = socket.socket()
     client_socket.connect(('localhost', 6000))
     client_socket.send(json.dumps({"key": encrypted_key}).encode())
 
-    # Encrypt and send a message
-    plaintext = "Hello from user1!"
-    encrypted_message = des_encrypt(plaintext, des_key)
+    plaintext = "Hello from User1!"  # Message to encrypt
+    encrypted_message = des_encrypt(plaintext, des_key)  # Encrypt message using DES key
+    print("Encrypted message:", encrypted_message)
+
     client_socket.send(json.dumps({"message": encrypted_message}).encode())
     client_socket.close()
 
