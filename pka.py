@@ -1,3 +1,4 @@
+# pka.py
 import socket
 import json
 from rsa_util import rsa_encrypt
@@ -27,3 +28,6 @@ def pka_server():
             }
         conn.send(json.dumps(encrypted_keys).encode())
         conn.close()
+
+if __name__ == '__main__':
+    pka_server()
